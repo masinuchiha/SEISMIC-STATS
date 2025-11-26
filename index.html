@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Seismic stats</title>
+<title>Seismic Stats Generator</title>
+
 <meta name="author" content="masinonline">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
-  /* reset and variables */
   :root {
     --brand-dark: #161616;
     --brand-beige: #D1CCBF;
@@ -26,8 +25,6 @@
 
   * { box-sizing: border-box; }
 
-
-  
   body {
     margin: 0;
     font-family: 'Rajdhani', sans-serif;
@@ -42,7 +39,6 @@
     padding: 20px 0;
   }
 
-  /* bg animation effects*/
   .bg-effects {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -53,22 +49,13 @@
   .moving-grid {
     position: absolute;
     bottom: -30%; left: 0; width: 100%; height: 100%;
-    /* the grid */
     background-image: 
       linear-gradient(rgba(166, 146, 77, 0.1) 1px, transparent 1px),
       linear-gradient(90deg, rgba(166, 146, 77, 0.1) 1px, transparent 1px);
     background-size: 60px 60px;
-    
-    /*3d animation*/
     transform: perspective(600px) rotateX(60deg);
-
-
-    
-    /* mask fix*/
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
-    
-    /* animation kind*/
     animation: gridMove 20s linear infinite;
   }
 
@@ -77,7 +64,6 @@
     100% { background-position: 0 1000px; }
   }
 
-  /* l3amr css*/
   .container {
     width: 90%; 
     max-width: 480px; 
@@ -108,12 +94,10 @@
     border-bottom: 2px solid var(--brand-plum); padding-bottom: 10px;
   }
 
-  .input-group { margin-bottom: 15px; }
+  .input-group { margin-bottom: 15px; width: 100%; position: relative; }
   label { display: block; margin-bottom: 6px; color: var(--brand-gold); font-size: 0.85rem; letter-spacing: 1px; font-weight: 700; }
 
-  /* updzte 2*/
-  
-  input, select {
+  input {
     width: 100%; padding: 12px;
     background: #0a0a0a; border: 1px solid var(--brand-plum);
     color: var(--brand-beige); border-radius: 4px;
@@ -122,51 +106,110 @@
   }
   input:focus { border-color: var(--brand-gold); background: #111; }
 
-  
-  select {
-    -webkit-appearance: none; 
-    -moz-appearance: none;    
-    appearance: none;         
+  /* Dropdown Fix */
+  .custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 100%;
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  .custom-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    font-size: 1rem;
+    background: #0a0a0a;
+    border: 1px solid var(--brand-plum);
+    border-radius: 4px;
+    color: var(--brand-beige);
     cursor: pointer;
-  
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23A6924D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 16px;
-    padding-right: 40px; 
+    transition: 0.3s;
   }
-  
-  select:hover {
+
+  .custom-select-trigger:hover {
     border-color: var(--brand-gold);
-    box-shadow: 0 0 10px rgba(166, 146, 77, 0.1);
   }
 
+  .custom-select-trigger::after {
+    content: '';
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid var(--brand-gold);
+    transition: 0.3s;
+  }
   
+  .custom-select-wrapper.open .custom-select-trigger::after {
+    transform: rotate(180deg);
+  }
+
+  .custom-options {
+    position: absolute;
+    display: flex; 
+    flex-direction: column;
+    top: 100%; left: 0; right: 0;
+    background: var(--brand-dark);
+    border: 1px solid var(--brand-gold);
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.8);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: 0.3s;
+    max-height: 250px;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .custom-select-wrapper.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transform: translateY(0);
+  }
+
+  .custom-option {
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #222;
+    transition: 0.2s;
+    display: block;
+    width: 100%;
+    color: var(--brand-beige);
+    background: var(--brand-dark);
+  }
+
+  .custom-option:hover {
+    background: var(--brand-plum);
+    color: white;
+  }
+  
+  .custom-option.selected {
+    background: var(--brand-gold);
+    color: #000;
+    font-weight: bold;
+  }
+
   input[type="file"] {
-    background: rgba(0,0,0,0.3);
-    padding: 6px; 
-    height: auto;
+    background: rgba(0,0,0,0.3); padding: 6px; height: auto;
   }
-
-  
   input[type="file"]::file-selector-button {
     background-color: var(--brand-plum);
     color: var(--brand-beige);
     border: 1px solid var(--brand-gold);
-    padding: 8px 16px;
-    border-radius: 4px;
-    margin-right: 15px;
-    cursor: pointer;
-    font-family: 'Bebas Neue', sans-serif;
-    letter-spacing: 1px;
-    transition: 0.3s;
+    padding: 8px 16px; border-radius: 4px;
+    margin-right: 15px; cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; transition: 0.3s;
   }
-
   input[type="file"]::file-selector-button:hover {
-    background-color: var(--brand-gold);
-    color: #000;
+    background-color: var(--brand-gold); color: #000;
   }
-  /* //////////////// */
 
   .btn-primary {
     width: 100%; padding: 15px;
@@ -185,7 +228,6 @@
     font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; text-decoration: underline;
   }
 
-  /* card review*/
   .result-panel { display: flex; flex-direction: column; align-items: center; width: 100%; }
   
   .card-wrapper {
@@ -208,15 +250,36 @@
   #card-stars { position: absolute; width: 100px; height: 20px; top: 450px; left: 170px; z-index: 15; }
   
   .stat-num {
-    position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 40px;
-    width: 80px; height: 60px;
-    text-align: center; display: flex; justify-content: center; align-items: center; z-index: 10;
+    position: absolute; 
+    font-family: 'Bebas Neue', sans-serif; 
+    font-size: 38px; 
+    width: 100px; 
+    height: 50px;
+    text-align: center; 
+    display: flex; justify-content: center; align-items: center; 
+    z-index: 10;
+    top: 520px; 
   }
-  #card-content { top: 520px; left: 177px; }
-  #card-artworks { top: 520px; left: 277px; }
-  #card-events { top: 520px; left: 377px; }
 
-  /* pop up mdl*/
+  .stat-label {
+    position: absolute;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #D1CCBF;
+    width: 100px;
+    text-align: center;
+    top: 565px; 
+    letter-spacing: 1px;
+    z-index: 10;
+    opacity: 0.8;
+  }
+
+  #card-content, #lbl-content { left: 30px; }
+  #card-artworks, #lbl-artworks { left: 145px; }
+  #card-events, #lbl-events { left: 260px; }
+  #card-events-w, #lbl-events-w { left: 375px; }
+
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.7); z-index: 2000;
@@ -233,19 +296,11 @@
     font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 15px;
   }
 
-  /* cpyMasin */
   .copyright {
-    width: 100%;
-    text-align: center; 
-    margin-top: 30px;
-    font-size: 0.9rem;
-    color: #C08F2C;
-    font-family: sans-serif;
-    letter-spacing: 0.5px;
-    opacity: 0.8;
+    width: 100%; text-align: center; margin-top: 30px; font-size: 0.9rem;
+    color: #C08F2C; font-family: sans-serif; letter-spacing: 0.5px; opacity: 0.8;
   }
 
-  /* loader*/
   #loader {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--brand-dark); z-index: 999;
@@ -276,7 +331,7 @@
 
   <div id="loader" class="hidden">
     <div class="spinner"></div>
-    <div style="font-family:'Bebas Neue'; letter-spacing: 2px;">Seismian is waiting...</div>
+    <div style="font-family:'Bebas Neue'; letter-spacing: 2px;">Your card will be ready in a few moments....</div>
   </div>
 
   <div class="container" id="form-section">
@@ -290,27 +345,42 @@
 
       <div class="input-group">
         <label>MAGNITUDE</label>
-        <select id="input-mag">
-          <option value="1">Magnitude 1.0</option>
-          <option value="2">Magnitude 2.0</option>
-          <option value="3">Magnitude 3.0</option>
-          <option value="4">Magnitude 4.0</option>
-          <option value="5">Magnitude 5.0</option>
-          <option value="6">Magnitude 6.0</option>
-          <option value="7">Magnitude 7.0</option>
-          <option value="8">Magnitude 8.0</option>
+        
+        <div class="custom-select-wrapper" id="mag-wrapper">
+            <div class="custom-select-trigger">Magnitude 1.0</div>
+            <div class="custom-options">
+                <span class="custom-option selected" data-value="1">Magnitude 1.0</span>
+                <span class="custom-option" data-value="2">Magnitude 2.0</span>
+                <span class="custom-option" data-value="3">Magnitude 3.0</span>
+                <span class="custom-option" data-value="4">Magnitude 4.0</span>
+                <span class="custom-option" data-value="5">Magnitude 5.0</span>
+                <span class="custom-option" data-value="6">Magnitude 6.0</span>
+                <span class="custom-option" data-value="7">Magnitude 7.0</span>
+                <span class="custom-option" data-value="8">Magnitude 8.0</span>
+            </div>
+        </div>
+        <select id="input-mag" style="display:none">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
         </select>
-      </div>
+        </div>
 
       <div class="input-group">
         <label>PFP</label>
         <input type="file" id="input-file" accept="image/*">
       </div>
 
-      <div style="display: flex; gap: 10px;">
+      <div style="display: flex; gap: 5px;">
         <div class="input-group" style="flex:1"><label>CONTENT</label><input type="number" id="input-content" value="0"></div>
         <div class="input-group" style="flex:1"><label>ARTWORKS</label><input type="number" id="input-artworks" value="0"></div>
         <div class="input-group" style="flex:1"><label>EVENTS</label><input type="number" id="input-events" value="0"></div>
+        <div class="input-group" style="flex:1"><label>EVENTS W</label><input type="number" id="input-events-w" value="0"></div>
       </div>
 
       <button class="btn-primary" onclick="generateCardProcess()">SHOW THE CARD</button>
@@ -325,9 +395,17 @@
           <img id="card-pfp" src="">
           <div id="card-username">USERNAME</div>
           <img id="card-stars" src="">
+          
           <div id="card-content" class="stat-num">0</div>
           <div id="card-artworks" class="stat-num">0</div>
           <div id="card-events" class="stat-num">0</div>
+          <div id="card-events-w" class="stat-num">0</div>
+
+          <div id="lbl-content" class="stat-label">CONTENT</div>
+          <div id="lbl-artworks" class="stat-label">ARTWORKS</div>
+          <div id="lbl-events" class="stat-label">EVENTS</div>
+          <div id="lbl-events-w" class="stat-label">EVENTS W</div>
+          
         </div>
       </div>
       <button class="btn-primary" onclick="downloadCard()">DOWNLOAD The CARD</button>
@@ -354,7 +432,8 @@
     file: document.getElementById('input-file'),
     content: document.getElementById('input-content'),
     artworks: document.getElementById('input-artworks'),
-    events: document.getElementById('input-events')
+    events: document.getElementById('input-events'),
+    eventsW: document.getElementById('input-events-w')
   };
 
   const card = {
@@ -364,8 +443,29 @@
     stars: document.getElementById('card-stars'),
     content: document.getElementById('card-content'),
     artworks: document.getElementById('card-artworks'),
-    events: document.getElementById('card-events')
+    events: document.getElementById('card-events'),
+    eventsW: document.getElementById('card-events-w') 
   };
+
+  const magWrapper = document.getElementById('mag-wrapper');
+  const magTrigger = magWrapper.querySelector('.custom-select-trigger');
+  const magOptions = magWrapper.querySelectorAll('.custom-option');
+  
+  magTrigger.addEventListener('click', function() { magWrapper.classList.toggle('open'); });
+
+  magOptions.forEach(option => {
+      option.addEventListener('click', function() {
+          magOptions.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          magTrigger.textContent = this.textContent;
+          inputs.mag.value = this.getAttribute('data-value');
+          magWrapper.classList.remove('open');
+      });
+  });
+
+  window.addEventListener('click', function(e) {
+      if (!magWrapper.contains(e.target)) { magWrapper.classList.remove('open'); }
+  });
 
   let uploadedImageSrc = "";
 
@@ -397,15 +497,18 @@
       card.content.textContent = inputs.content.value;
       card.artworks.textContent = inputs.artworks.value;
       card.events.textContent = inputs.events.value;
+      card.eventsW.textContent = inputs.eventsW.value; 
 
       const magVal = inputs.mag.value;
       card.el.style.backgroundImage = `url('mag${magVal}.png')`;
       card.stars.src = `mag${magVal}-rate.png`;
       
       const activeColor = MAG_COLORS[magVal];
+      
       card.content.style.color = activeColor;
       card.artworks.style.color = activeColor;
       card.events.style.color = activeColor;
+      card.eventsW.style.color = activeColor;
 
       loader.classList.add('hidden');
       resultSection.classList.remove('hidden');
@@ -447,3 +550,4 @@
 </script>
 </body>
 </html>
+
