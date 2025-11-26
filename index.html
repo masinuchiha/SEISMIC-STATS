@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Seismic stats</title>
+
+<meta name="author" content="masinonline"
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  /* reset nad variables */
+  :root {
+    --brand-dark: #161616;
+    --brand-beige: #D1CCBF;
+    --brand-gold: #A6924D;
+    --brand-mauve: #825A60;
+    --brand-plum: #523542;
+    --panel-bg: #161616F2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Rajdhani', sans-serif;
+    background-color: var(--brand-dark);
+    color: var(--brand-beige);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px 0;
+  }
+
+  /* bg animation effects*/
+  .bg-effects {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at 50% 0%, #2a2025 0%, #0e0e0e 100%);
+  }
+
+  .moving-grid {
+    position: absolute;
+    bottom: -30%; left: 0; width: 100%; height: 100%;
+    /* the grid */
+    background-image: 
+      linear-gradient(rgba(166, 146, 77, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(166, 146, 77, 0.1) 1px, transparent 1px);
+    background-size: 60px 60px;
+    
+    /*3d animation*/
+    transform: perspective(600px) rotateX(60deg);
+    
+    /* mask fix*/
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 40%, black 80%, transparent 100%);
+    
+    /* animation kind*/
+    animation: gridMove 20s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 1000px; }
+  }
+
+  /* l3amr css*/
+  .container {
+    width: 90%; 
+    max-width: 480px; 
+    position: relative; 
+    z-index: 10;
+    transition: opacity 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hidden { display: none !important; opacity: 0; }
+  .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .form-panel {
+    width: 100%;
+    background: var(--panel-bg);
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--brand-plum);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif; font-size: 3rem; text-align: center; margin: 0 0 25px 0;
+    color: var(--brand-beige); letter-spacing: 3px;
+    border-bottom: 2px solid var(--brand-plum); padding-bottom: 10px;
+  }
+
+  .input-group { margin-bottom: 15px; }
+  label { display: block; margin-bottom: 6px; color: var(--brand-gold); font-size: 0.85rem; letter-spacing: 1px; font-weight: 700; }
+
+  input, select {
+    width: 100%; padding: 12px;
+    background: #0a0a0a; border: 1px solid var(--brand-plum);
+    color: var(--brand-beige); border-radius: 4px;
+    font-size: 1rem; outline: none; font-family: 'Rajdhani', sans-serif;
+  }
+  input:focus, select:focus { border-color: var(--brand-gold); background: #111; }
+
+  .btn-primary {
+    width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--brand-mauve), var(--brand-plum));
+    border: 1px solid var(--brand-gold);
+    color: var(--brand-beige);
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
+    border-radius: 4px; cursor: pointer; letter-spacing: 2px;
+    transition: transform 0.2s; margin-top: 10px;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-back {
+    background: transparent; border: none; color: #666;
+    margin-top: 15px; padding: 10px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; text-decoration: underline;
+  }
+
+  /* card review*/
+  .result-panel { display: flex; flex-direction: column; align-items: center; width: 100%; }
+  
+  .card-wrapper {
+    width: 500px; height: 667px; position: relative;
+    transform-origin: top center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  
+  .card { width: 500px; height: 667px; position: relative; background-color: #000; background-size: cover; overflow: hidden; }
+
+  #card-username {
+    position: absolute; color: white; font-family: 'Bebas Neue', sans-serif; font-size: 36px;
+    width: 300px; height: 50px; top: 100px; left: 160px;
+    text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 10;
+  }
+  #card-pfp { position: absolute; width: 320px; height: 320px; top: 160px; left: 160px; object-fit: cover; z-index: 5; border-radius: 8px}
+  #card-stars { position: absolute; width: 100px; height: 20px; top: 450px; left: 170px; z-index: 15; }
+  
+  .stat-num {
+    position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 40px;
+    width: 80px; height: 60px;
+    text-align: center; display: flex; justify-content: center; align-items: center; z-index: 10;
+  }
+  #card-content { top: 520px; left: 177px; }
+  #card-artworks { top: 520px; left: 277px; }
+  #card-events { top: 520px; left: 377px; }
+
+  /* pop up mdl*/
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7); z-index: 2000;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.active { opacity: 1; pointer-events: all; }
+  .modal-box {
+    background: var(--brand-dark); border: 1px solid var(--brand-gold);
+    padding: 25px; border-radius: 8px; text-align: center; max-width: 320px;
+  }
+  .btn-modal {
+    background: var(--brand-gold); color: #000; border: none; padding: 8px 20px;
+    font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 15px;
+  }
+
+  /* cpyMasin */
+  .copyright {
+    width: 100%;
+    text-align: center; 
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #C08F2C;
+    font-family: sans-serif;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+  }
+
+  /* loader*/
+  #loader {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--brand-dark); z-index: 999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+  }
+  .spinner {
+    width: 40px; height: 40px; border: 4px solid var(--brand-plum);
+    border-top-color: var(--brand-gold); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin-bottom: 15px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+</style>
+</head>
+<body>
+
+  <div class="bg-effects">
+    <div class="moving-grid"></div>
+  </div>
+
+  <div id="custom-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="color:var(--brand-gold); font-family:'Bebas Neue'; font-size:1.5rem; margin-bottom:10px;">WAIT</div>
+      <div id="modal-message-text" style="margin-bottom:10px;"></div>
+      <button class="btn-modal" onclick="closeModal()">OKAY</button>
+    </div>
+  </div>
+
+
+
+
+  <div id="loader" class="hidden">
+    <div class="spinner"></div>
+    <div style="font-family:'Bebas Neue'; letter-spacing: 2px;">Seismian is waiting...</div>
+  </div>
+
+  <div class="container" id="form-section">
+    <div class="form-panel">
+      <h1>SEISMIC STATS</h1>
+      
+      <div class="input-group">
+        <label>Your Nickname</label>
+        <input type="text" id="input-name" placeholder="Nickname" maxlength="25">
+      </div>
+
+      <div class="input-group">
+        <label>MAGNITUDE</label>
+        <select id="input-mag">
+          <option value="1">Magnitude 1.0</option>
+          <option value="2">Magnitude 2.0</option>
+          <option value="3">Magnitude 3.0</option>
+          <option value="4">Magnitude 4.0</option>
+          <option value="5">Magnitude 5.0</option>
+          <option value="6">Magnitude 6.0</option>
+          <option value="7">Magnitude 7.0</option>
+          <option value="8">Magnitude 8.0</option>
+        </select>
+      </div>
+
+
+
+      <div class="input-group">
+        <label>PFP</label>
+        <input type="file" id="input-file" accept="image/*">
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <div class="input-group" style="flex:1"><label>CONTENT</label><input type="number" id="input-content" value="0"></div>
+        <div class="input-group" style="flex:1"><label>ARTWORKS</label><input type="number" id="input-artworks" value="0"></div>
+        <div class="input-group" style="flex:1"><label>EVENTS</label><input type="number" id="input-events" value="0"></div>
+      </div>
+
+      <button class="btn-primary" onclick="generateCardProcess()">Show the result</button>
+    </div>
+    <div class="copyright">&copy; masinonline</div>
+  </div>
+
+  <div class="container hidden" id="result-section">
+    <div class="result-panel">
+      <div class="card-wrapper" id="card-wrapper">
+        <div class="card" id="final-card">
+          <img id="card-pfp" src="">
+          <div id="card-username">USERNAME</div>
+          <img id="card-stars" src="">
+          <div id="card-content" class="stat-num">0</div>
+          <div id="card-artworks" class="stat-num">0</div>
+          <div id="card-events" class="stat-num">0</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="downloadCard()">DOWNLOAD</button>
+      <button class="btn-back" onclick="goBack()">Back home</button>
+      <div class="copyright">&copy; masinonline</div>
+    </div>
+  </div>
+
+<script>
+  const MAG_COLORS = {
+    "1": "#fbde62", "2": "#1cce92", "3": "#3fdd43", "4": "#99d53c",
+    "5": "#96a90e", "6": "#fdb811", "7": "#ff842c", "8": "#e1181a"
+  };
+
+  const formSection = document.getElementById('form-section');
+  const resultSection = document.getElementById('result-section');
+  const loader = document.getElementById('loader');
+  const modal = document.getElementById('custom-modal');
+  const modalMsg = document.getElementById('modal-message-text');
+
+  const inputs = {
+    name: document.getElementById('input-name'),
+    mag: document.getElementById('input-mag'),
+    file: document.getElementById('input-file'),
+    content: document.getElementById('input-content'),
+    artworks: document.getElementById('input-artworks'),
+    events: document.getElementById('input-events')
+  };
+
+  const card = {
+    el: document.getElementById('final-card'),
+    username: document.getElementById('card-username'),
+    pfp: document.getElementById('card-pfp'),
+    stars: document.getElementById('card-stars'),
+    content: document.getElementById('card-content'),
+    artworks: document.getElementById('card-artworks'),
+    events: document.getElementById('card-events')
+  };
+
+  let uploadedImageSrc = "";
+
+  function showModal(msg) { modalMsg.textContent = msg; modal.classList.add('active'); }
+  function closeModal() { modal.classList.remove('active'); }
+
+  inputs.file.addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(event) { uploadedImageSrc = event.target.result; }
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+
+  function generateCardProcess() {
+    const nameVal = inputs.name.value.trim();
+    if (!nameVal) { showModal("Enter your nickname first"); return; }
+    if (!uploadedImageSrc) { showModal("Enter your PFP first"); return; }
+
+    formSection.classList.add('hidden');
+    loader.classList.remove('hidden');
+
+    let displayName = nameVal.toUpperCase();
+    if (displayName.length > 18) { displayName = displayName.substring(0, 18) + "..."; }
+
+    setTimeout(() => {
+      card.username.textContent = displayName;
+      card.pfp.src = uploadedImageSrc;
+      card.content.textContent = inputs.content.value;
+      card.artworks.textContent = inputs.artworks.value;
+      card.events.textContent = inputs.events.value;
+
+      const magVal = inputs.mag.value;
+      card.el.style.backgroundImage = `url('mag${magVal}.png')`;
+      card.stars.src = `mag${magVal}-rate.png`;
+      
+      const activeColor = MAG_COLORS[magVal];
+      card.content.style.color = activeColor;
+      card.artworks.style.color = activeColor;
+      card.events.style.color = activeColor;
+
+      loader.classList.add('hidden');
+      resultSection.classList.remove('hidden');
+      resultSection.classList.add('fade-in');
+      
+      handleResize();
+      setTimeout(handleResize, 100); 
+    }, 1000);
+  }
+
+
+
+
+
+  function goBack() {
+    resultSection.classList.add('hidden');
+    resultSection.classList.remove('fade-in');
+    formSection.classList.remove('hidden');
+    formSection.classList.add('fade-in');
+  }
+
+  function downloadCard() {
+    const cardElement = document.getElementById('final-card');
+    html2canvas(cardElement, { scale: 2, useCORS: true, backgroundColor: null }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `Seismic-${inputs.name.value}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+
+  function handleResize() {
+    const wrapper = document.getElementById('card-wrapper');
+    const screenWidth = window.innerWidth;
+    const scale = Math.min(1, (screenWidth - 40) / 500);
+    wrapper.style.transform = `scale(${scale})`;
+    wrapper.style.marginBottom = `${-(667 - (667 * scale)) + 20}px`;
+  }
+
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('load', handleResize);
+
+</script>
+</body>
+</html>
